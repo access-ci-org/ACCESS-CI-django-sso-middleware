@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ACCESS-CI-django-sso-middleware"
+version = "0.1.0"
+description = "Django middleware that keeps a local session in step with the ACCESS CI SSO cookie"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["django>=4.2"]
+classifiers = [
+    "Framework :: Django",
+    "Programming Language :: Python :: 3",
+]
+
+[project.urls]
+Homepage = "https://github.com/access-ci-org/ACCESS-CI-django-sso-middleware"
+
+[tool.setuptools]
+packages = ["access_ci_django_sso_middleware"]
