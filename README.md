@@ -4,8 +4,9 @@ Django middleware that keeps the local session in step with the shared ACCESS SS
 
 - Authenticated and cookie present: request passes through.
 - Cookie present but no local session: redirect to `settings.LOGIN_URL?next=<path>` (skipped inside the CILogon login flow).
+- A view logs the user out (e.g. `/accounts/logout/`): the SSO cookie is deleted on the response.
 - Authenticated but cookie missing: the cookie is set on the response.
-- Still logged out after the view with the cookie present: the stale `sso_token` cookie is deleted.
+- Still logged out after the view with the cookie present: the SSO cookie is deleted and the user is redirected to the CILogon logout URL (not on paths under `LOGIN_URL`).
 
 ## Install
 
@@ -28,8 +29,8 @@ It must come after `AuthenticationMiddleware`. It uses `LOGIN_URL`, `SESSION_COO
 | Setting | Default |
 |---|---|
 | `ACCESS_CI_SSO_SSO_COOKIE_NAME` | `SESSaccesscisso` |
-| `ACCESS_CI_SSO_STALE_TOKEN_COOKIE_NAME` | `sso_token` |
-| `ACCESS_CI_SSO_LOGIN_FLOW_PATHS` | `/accounts/cilogon/login/`, `/accounts/cilogon/login/callback/` |
+| `ACCESS_CI_SSO_CILOGON_LOGOUT_URL` | `https://cilogon.org/logout/?skin=access` |
+| `ACCESS_CI_SSO_LOGIN_FLOW_PATHS` | `/accounts/cilogon/login/`, `/accounts/cilogon/login/callback/`, `/accounts/logout/` |
 
 ## Tests
 

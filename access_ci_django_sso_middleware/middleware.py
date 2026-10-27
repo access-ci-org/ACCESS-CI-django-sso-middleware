@@ -17,7 +17,7 @@ class ACCESSCISSOMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
         self.sso_cookie_name = get_setting("SSO_COOKIE_NAME")
-        self.stale_token_cookie_name = get_setting("STALE_TOKEN_COOKIE_NAME")
+        self.cilogon_logout_url = get_setting("CILOGON_LOGOUT_URL")
         self.login_flow_paths = frozenset(get_setting("LOGIN_FLOW_PATHS"))
 
     def __call__(self, request):
@@ -28,19 +28,26 @@ class ACCESSCISSOMiddleware:
             request.path, sso_cookie, is_authenticated,
         )
 
-        # Authenticated with the SSO cookie present: nothing to do.
-        if is_authenticated and sso_cookie:
-            return self.get_response(request)
-
         # SSO cookie but no local session: send them to log in, unless they
         # are already in the login flow.
         if sso_cookie and not is_authenticated and request.path not in self.login_flow_paths:
             return redirect(f"{settings.LOGIN_URL}?next={request.path}")
 
         response = self.get_response(request)
+        is_authenticated_now = request.user.is_authenticated
 
-        # Logged in without the SSO cookie (e.g. just logged in): set it.
-        if request.user.is_authenticated and not sso_cookie:
+        if is_authenticated and not is_authenticated_now:
+            # The view logged the user out: remove the SSO cookie too.
+            if not request.path.startswith(settings.LOGIN_URL):
+                response = redirect(self.cilogon_logout_url)
+            response.delete_cookie(
+                self.sso_cookie_name,
+                domain=settings.SESSION_COOKIE_DOMAIN,
+                path="/",
+                samesite="Lax",
+            )
+        elif is_authenticated_now and not sso_cookie:
+            # Logged in without the SSO cookie (e.g. just logged in): set it.
             response.set_cookie(
                 self.sso_cookie_name,
                 value="1",
@@ -48,13 +55,17 @@ class ACCESSCISSOMiddleware:
                 domain=settings.SESSION_COOKIE_DOMAIN,
                 samesite="Lax",
             )
-
-        # Still logged out after the view: drop the stale token cookie.
-        if sso_cookie and not request.user.is_authenticated:
+        elif sso_cookie and not is_authenticated_now:
+            # Still logged out after the view: end the CILogon session too,
+            # except inside the login flow itself, where this would cancel
+            # the login redirect. Either way, drop the SSO cookie.
+            if not request.path.startswith(settings.LOGIN_URL):
+                response = redirect(self.cilogon_logout_url)
             response.delete_cookie(
-                self.stale_token_cookie_name,
+                self.sso_cookie_name,
                 domain=settings.SESSION_COOKIE_DOMAIN,
                 path="/",
+                samesite="Lax",
             )
 
         return response
