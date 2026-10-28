@@ -1,4 +1,5 @@
 import logging
+from urllib.parse import urlencode
 
 from django.conf import settings
 from django.shortcuts import redirect
@@ -18,6 +19,7 @@ class ACCESSCISSOMiddleware:
         self.get_response = get_response
         self.sso_cookie_name = get_setting("SSO_COOKIE_NAME")
         self.sso_cookie_domain = get_setting("SSO_COOKIE_DOMAIN")
+        self.cilogon_login_url = get_setting("CILOGON_LOGIN_URL")
         self.cilogon_logout_url = get_setting("CILOGON_LOGOUT_URL")
         self.login_flow_paths = frozenset(get_setting("LOGIN_FLOW_PATHS"))
 
@@ -29,10 +31,12 @@ class ACCESSCISSOMiddleware:
             request.path, sso_cookie, is_authenticated,
         )
 
-        # SSO cookie but no local session: send them to log in, unless they
-        # are already in the login flow.
+        # SSO cookie but no local session: start the CILogon OAuth login
+        # (allauth provider login view), unless they are already in the
+        # login flow.
         if sso_cookie and not is_authenticated and request.path not in self.login_flow_paths:
-            return redirect(f"{settings.LOGIN_URL}?next={request.path}")
+            query = urlencode({"process": "login", "next": request.get_full_path()})
+            return redirect(f"{self.cilogon_login_url}?{query}")
 
         response = self.get_response(request)
         is_authenticated_now = request.user.is_authenticated

@@ -41,7 +41,7 @@ class MiddlewareTests(SimpleTestCase):
 
     def test_cookie_without_session_redirects(self):
         r = run("/x/", cookie="1")
-        self.assertEqual((r.status_code, r["Location"]), (302, "/accounts/cilogon/login/?next=/x/"))
+        self.assertEqual((r.status_code, r["Location"]), (302, "/accounts/cilogon/login/?process=login&next=%2Fx%2F"))
 
     def test_login_flow_path_not_redirected_and_sso_cookie_cleared(self):
         r = run("/accounts/cilogon/login/", cookie="1")
