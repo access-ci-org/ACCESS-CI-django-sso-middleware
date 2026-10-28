@@ -2,6 +2,7 @@ from django.conf import settings
 
 DEFAULTS = {
     "SSO_COOKIE_NAME": "SESSaccesscisso",
+    "SSO_COOKIE_DOMAIN": ".access-ci.org",
     "CILOGON_LOGOUT_URL": "https://cilogon.org/logout/?skin=access",
     "LOGIN_FLOW_PATHS": (
         "/accounts/cilogon/login/",

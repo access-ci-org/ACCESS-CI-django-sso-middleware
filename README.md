@@ -22,13 +22,14 @@ MIDDLEWARE = [
 ]
 ```
 
-It must come after `AuthenticationMiddleware`. It uses `LOGIN_URL`, `SESSION_COOKIE_AGE` and `SESSION_COOKIE_DOMAIN`.
+It must come after `AuthenticationMiddleware`. It uses `LOGIN_URL` and `SESSION_COOKIE_AGE`.
 
 ## Optional settings
 
 | Setting | Default |
 |---|---|
 | `ACCESS_CI_SSO_SSO_COOKIE_NAME` | `SESSaccesscisso` |
+| `ACCESS_CI_SSO_SSO_COOKIE_DOMAIN` | `.access-ci.org` |
 | `ACCESS_CI_SSO_CILOGON_LOGOUT_URL` | `https://cilogon.org/logout/?skin=access` |
 | `ACCESS_CI_SSO_LOGIN_FLOW_PATHS` | `/accounts/cilogon/login/`, `/accounts/cilogon/login/callback/`, `/accounts/logout/` |
 

@@ -17,6 +17,7 @@ class ACCESSCISSOMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
         self.sso_cookie_name = get_setting("SSO_COOKIE_NAME")
+        self.sso_cookie_domain = get_setting("SSO_COOKIE_DOMAIN")
         self.cilogon_logout_url = get_setting("CILOGON_LOGOUT_URL")
         self.login_flow_paths = frozenset(get_setting("LOGIN_FLOW_PATHS"))
 
@@ -42,7 +43,7 @@ class ACCESSCISSOMiddleware:
                 response = redirect(self.cilogon_logout_url)
             response.delete_cookie(
                 self.sso_cookie_name,
-                domain=settings.SESSION_COOKIE_DOMAIN,
+                domain=self.sso_cookie_domain,
                 path="/",
                 samesite="Lax",
             )
@@ -52,7 +53,7 @@ class ACCESSCISSOMiddleware:
                 self.sso_cookie_name,
                 value="1",
                 max_age=settings.SESSION_COOKIE_AGE,
-                domain=settings.SESSION_COOKIE_DOMAIN,
+                domain=self.sso_cookie_domain,
                 samesite="Lax",
             )
         elif sso_cookie and not is_authenticated_now:
@@ -63,7 +64,7 @@ class ACCESSCISSOMiddleware:
                 response = redirect(self.cilogon_logout_url)
             response.delete_cookie(
                 self.sso_cookie_name,
-                domain=settings.SESSION_COOKIE_DOMAIN,
+                domain=self.sso_cookie_domain,
                 path="/",
                 samesite="Lax",
             )

@@ -6,7 +6,7 @@ settings.configure(
     LOGIN_URL="/accounts/cilogon/login/",
     ROOT_URLCONF="tests.urls",
     SESSION_COOKIE_AGE=100,
-    SESSION_COOKIE_DOMAIN=".access-ci.org",
+    SESSION_COOKIE_DOMAIN=None,
 )
 
 import django  # noqa: E402
@@ -57,6 +57,7 @@ class MiddlewareTests(SimpleTestCase):
     def test_authenticated_without_cookie_sets_cookie(self):
         r = run(user=User())
         self.assertEqual(r.cookies["SESSaccesscisso"].value, "1")
+        self.assertEqual(r.cookies["SESSaccesscisso"]["domain"], ".access-ci.org")
 
     def test_logout_deletes_sso_cookie(self):
         user = User()
