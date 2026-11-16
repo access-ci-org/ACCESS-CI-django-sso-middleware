@@ -15,7 +15,7 @@ django.setup()
 
 from django.contrib.auth.models import AnonymousUser  # noqa: E402
 from django.http import HttpResponse  # noqa: E402
-from django.test import RequestFactory, SimpleTestCase  # noqa: E402
+from django.test import RequestFactory, SimpleTestCase, override_settings  # noqa: E402
 
 from access_ci_django_sso_middleware.middleware import ACCESSCISSOMiddleware  # noqa: E402
 
@@ -53,6 +53,15 @@ class MiddlewareTests(SimpleTestCase):
         self.assertEqual(r.status_code, 302)
         self.assertEqual(r["Location"], "https://cilogon.org/logout/?skin=access")
         self.assertEqual(r.cookies["SESSaccesscisso"].value, "")
+
+    def test_ignored_prefix_bypasses_sso(self):
+        with override_settings(ACCESS_CI_SSO_IGNORE_PATH_PREFIXES=["/api/"]):
+            r = run("/api/v1/x/", cookie="1")  # would otherwise redirect
+            self.assertEqual(r.status_code, 200)
+            r = run("/api/v1/x/", user=User())  # would otherwise set the cookie
+            self.assertEqual(len(r.cookies), 0)
+            r = run("/other/", cookie="1")  # non-matching path still handled
+            self.assertEqual(r.status_code, 302)
 
     def test_authenticated_without_cookie_sets_cookie(self):
         r = run(user=User())

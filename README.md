@@ -32,6 +32,7 @@ It must come after `AuthenticationMiddleware`. It uses `LOGIN_URL` and `SESSION_
 | `ACCESS_CI_SSO_SSO_COOKIE_DOMAIN` | `.access-ci.org` |
 | `ACCESS_CI_SSO_CILOGON_LOGIN_URL` | `/accounts/cilogon/login/` |
 | `ACCESS_CI_SSO_CILOGON_LOGOUT_URL` | `https://cilogon.org/logout/?skin=access` |
+| `ACCESS_CI_SSO_IGNORE_PATH_PREFIXES` | `()` (none). Requests whose path starts with any of these, e.g. `["/api/"]`, skip the middleware entirely. |
 | `ACCESS_CI_SSO_LOGIN_FLOW_PATHS` | `/accounts/cilogon/login/`, `/accounts/cilogon/login/callback/`, `/accounts/logout/` |
 
 ## Tests

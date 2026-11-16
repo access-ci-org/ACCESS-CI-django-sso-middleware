@@ -5,6 +5,7 @@ DEFAULTS = {
     "SSO_COOKIE_DOMAIN": ".access-ci.org",
     "CILOGON_LOGIN_URL": "/accounts/cilogon/login/",
     "CILOGON_LOGOUT_URL": "https://cilogon.org/logout/?skin=access",
+    "IGNORE_PATH_PREFIXES": (),
     "LOGIN_FLOW_PATHS": (
         "/accounts/cilogon/login/",
         "/accounts/cilogon/login/callback/",

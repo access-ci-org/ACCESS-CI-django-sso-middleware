@@ -21,9 +21,17 @@ class ACCESSCISSOMiddleware:
         self.sso_cookie_domain = get_setting("SSO_COOKIE_DOMAIN")
         self.cilogon_login_url = get_setting("CILOGON_LOGIN_URL")
         self.cilogon_logout_url = get_setting("CILOGON_LOGOUT_URL")
+        prefixes = get_setting("IGNORE_PATH_PREFIXES")
+        if isinstance(prefixes, str):
+            prefixes = (prefixes,)
+        self.ignore_path_prefixes = tuple(prefixes)
         self.login_flow_paths = frozenset(get_setting("LOGIN_FLOW_PATHS"))
 
     def __call__(self, request):
+        # Paths under a configured prefix (e.g. an API) bypass the SSO flow.
+        if self.ignore_path_prefixes and request.path.startswith(self.ignore_path_prefixes):
+            return self.get_response(request)
+
         sso_cookie = request.COOKIES.get(self.sso_cookie_name)
         is_authenticated = request.user.is_authenticated
         logger.debug(
